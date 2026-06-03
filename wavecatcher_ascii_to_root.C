@@ -9,9 +9,9 @@
 
 using namespace std;
 
-void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1)
+void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile="wavecatcher_output.root")
 {
-    TFile *fout = new TFile("wavecatcher_split.root","RECREATE");
+    TFile *fout = new TFile(outfile,"RECREATE");
 
     // =========================
     // 1. EVENT TREE
@@ -62,10 +62,15 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1)
     // =========================
     // FILE LOOP
     // =========================
-    for(int i=begin_file;i<=end_file;i++)
+    for(int i=begin_file; i<=end_file; i++)
     {
-        char fname[256];
-        sprintf(fname,"wavecatcher_run1_Ascii.dat_%04d", i);
+
+     std::string fname;
+     
+     if(i == 0)
+         fname = "wavecatcher_run1_Ascii.dat";
+     else
+         fname = Form("wavecatcher_run1_Ascii.dat_%04d", i);
 
         cout << "Processing " << fname << endl;
 
