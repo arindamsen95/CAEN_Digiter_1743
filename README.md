@@ -50,6 +50,7 @@ root macro.C
 
 ## Project Structure
 
+```text
 CAEN_Digiter_1743/
 ├── src/
 ├── config/
@@ -58,7 +59,7 @@ CAEN_Digiter_1743/
 ├── tests/
 ├── README.md
 └── .gitignore
-
+```
 
 ## Development
 
