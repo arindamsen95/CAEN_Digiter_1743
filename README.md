@@ -52,11 +52,7 @@ root macro.C
 
 ```text
 CAEN_Digiter_1743/
-├── src/
-├── config/
-├── data/
-├── docs/
-├── tests/
+├── macros
 ├── README.md
 └── .gitignore
 ```
