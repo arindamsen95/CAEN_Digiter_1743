@@ -59,6 +59,8 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
 
     chTree->Branch("waveform",&waveform);
 
+        cout << "\n*****************" << endl;
+
     // =========================
     // FILE LOOP
     // =========================
@@ -72,7 +74,7 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
      else
          fname = Form("wavecatcher_run1_Ascii.dat_%04d", i);
 
-        cout << "Processing " << fname << endl;
+        cout << "Processing : " << fname << endl;
 
         ifstream fin(fname);
         if(!fin.is_open()){
@@ -149,5 +151,6 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
     fout->Write();
     fout->Close();
 
-    cout << "DONE → wavecatcher_split.root created" << endl;
+    cout << "\033[1;31mDONE → \033[0m" << outfile << " created " << endl;
+    cout << "*****************\n" << endl;
 }
