@@ -40,8 +40,10 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
     double baseline;
     double amplitude;
     double charge;
-    double leadingTime;
-    double trailingTime;
+    Long64_t leadingTime;
+    Long64_t trailingTime;
+    char leadStr[64];
+    char trailStr[64];
 
     vector<double> *waveform = new vector<double>();
 
@@ -120,17 +122,26 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
                 ch_eventID = eventID;
 
                 sscanf(line.c_str(),
-                    "=== CH: %d EVENTID: %*d FCR: %d Baseline: %lf V Amplitude: %lf V Charge: %lf pC LeadingEdgeTime: %lf ns TrailingEdgeTime: %lf ns TrigCount: %d TimeCount %d ===",
+                    "=== CH: %d EVENTID: %*d FCR: %d Baseline: %lf V Amplitude: %lf V Charge: %lf pC LeadingEdgeTime: %63s ns TrailingEdgeTime: %63s ns TrigCount: %d TimeCount %d ===",
                     &channel,
                     &fcr,
                     &baseline,
                     &amplitude,
                     &charge,
-                    &leadingTime,
-                    &trailingTime,
+                    leadStr,
+                    trailStr,
                     &trigCount,
                     &timeCount
                 );
+
+std::string s1 = leadStr;
+std::string s2 = trailStr;
+
+s1.erase(s1.find('.'), 1);
+s2.erase(s2.find('.'), 1);
+
+leadingTime  = std::stoll(s1);
+trailingTime = std::stoll(s2);
 
                 // waveform line
                 if(getline(fin,line))
