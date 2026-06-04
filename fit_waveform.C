@@ -9,7 +9,7 @@
 
 void fit_waveform(int event_id = 501, int channel_id = 0)
 {
-    TFile *f = TFile::Open("wavecatcher_split.root");
+    TFile *f = TFile::Open("wavecatcher_output.root");
     if (!f || f->IsZombie()) {
         std::cout << "Error opening file\n";
         return;
@@ -64,8 +64,8 @@ void fit_waveform(int event_id = 501, int channel_id = 0)
                     amp = y[j];
 
             }
-
-
+	
+	 amplitude = amp - base;
          double dt = 0.3125; // in ns (set properly!)
          double R = 50.0; // ohms (typical oscilloscope / readout impedance)
          
@@ -82,22 +82,35 @@ void fit_waveform(int event_id = 501, int channel_id = 0)
             std::cout << "Event   : " << event_id << std::endl;
             std::cout << "Channel : " << channel_id << std::endl;
             std::cout << "Baseline: " << base << std::endl;
-            std::cout << "Amplitude (recalc): " << amp - base << std::endl;
+            std::cout << "Amplitude (recalc): " << amplitude << std::endl;
             std::cout << "Charge (recalc)   : " << charge * 1000. << std::endl;
 
             TGraph *gr = new TGraph(n, &x[0], &y[0]);
 
             TCanvas *c1 = new TCanvas("c1","Waveform",800,600);
-            gr->SetTitle("Waveform;Time (ns);ADC counts");
+            gr->SetTitle(";Time (ns);ADC counts");
             gr->SetLineWidth(2);
             gr->Draw("AL");
 
-            TLegend *leg = new TLegend(0.6,0.7,0.88,0.88);
-            leg->AddEntry(gr, "Waveform", "l");
-            leg->Draw();
+//            TLegend *leg = new TLegend(0.65,0.2,0.85,0.3,"","brNDC");
+//            leg->AddEntry(gr, "Waveform", "l");
+//            leg->AddEntry((TObject*)nullptr, Form("Amplitude : %f Volt", amplitude), "");
+//            leg->AddEntry((TObject*)nullptr, Form("Charge : %f pC", charge*1000), "");
+//            leg->Draw();
+
+    TPaveText *pave = new TPaveText(0.65, 0.2, 0.85, 0.3, "brNDC");
+    pave->SetFillColor(0);  // White background
+    pave->SetTextAlign(22); // Left-aligned (1) and vertically centered (2)
+    pave->AddText("Waveform");
+   //pave->AddLine(0.0, 0.0, 0.0, 0.0);
+    pave->AddLine(0.0, 0.72, 1.0, 0.72); 
+    pave->AddText(Form("Amplitude : %f Volt", amplitude));
+    pave->AddText(Form("Charge : %f pC", charge * 1000));
+    pave->Draw();
 
             break;
         }
+
     }
 
     if (!found)
