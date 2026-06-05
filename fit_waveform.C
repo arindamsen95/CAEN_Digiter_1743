@@ -19,8 +19,6 @@
      TTree *t = (TTree*)f->Get("ChannelTree");
  
      int eventID, channel;
-     float baseline,amplitude, charge;
-     double minVal, maxVal;
      std::vector<double> *waveform = nullptr;
  
      t->SetBranchAddress("eventID", &eventID);
@@ -31,75 +29,65 @@
  
      bool found = false;
  
-     std::vector<double> x, y;
- 
-     for (int i = 0; i < nentries; i++)
+     for (Long64_t i = 0; i < nentries; i++)
      {
          t->GetEntry(i);
  
          if (eventID == event_id && channel == channel_id)
          {
              found = true;
-             double amp = (*waveform)[0];
-             int n = waveform->size();
+
+    if (!waveform || waveform->empty())
+    {
+        std::cout << "Empty waveform\n";
+        break;
+    }
+
+    int n = waveform->size();
+
+    double amp = (*waveform)[0];
+
+    int nBase = std::min(50, n);
+
+    double base = 0.0;
+    for (int j = 0; j < nBase; ++j)
+        base += (*waveform)[j];
+
+    base /= nBase;
  
-             x.resize(n);
-             y.resize(n);
  
-             double base = 0;
-             for (int j = 0; j < 50; j++)
-                 base += (*waveform)[j];
-             base /= 50;
- 
- 
-     if (!waveform->empty()) {
         auto result = std::minmax_element(waveform->begin(), waveform->end());
  
-        minVal = *result.first;
-        maxVal = *result.second;
-        bool negativePulse =std::fabs(minVal) > std::fabs(maxVal);
-        amp = negativePulse ? minVal : maxVal;
+        double minVal = *result.first;
+        double maxVal = *result.second;
+        amp = (std::fabs(minVal) > std::fabs(maxVal)) ? minVal : maxVal;
  
         cout << "min val=" << minVal << " & " << "max val=" << maxVal << endl;
-       }
  
           double dt = 0.3125; // in ns (set properly!)
           double R = 50.0; // ohms (typical oscilloscope / readout impedance)
           double charge = 0;
+          double amplitude = 0;
 
-      if(std::fabs(minVal) > maxVal) {
-             for (int j = 0; j < n; j++)
-             {
-                 x[j] = j * 0.3125;
-                 y[j] = (*waveform)[j];
- 
-              double v = (*waveform)[j] - base;
-              charge += v * dt;
-             }
- }
+       for(int j=0;j<n;++j)
+          {
+             double v = (*waveform)[j];
 
-      else {
-             for (int j = 0; j < n; j++)
-             {
-                 x[j] = j * 0.3125;
-                 y[j] = (*waveform)[j];
- 
-              double v = (*waveform)[j] - base;
-              charge += v * dt;
-             }
- }
+             charge += (v-base)*dt;
+          }
  	
  	 amplitude = amp - base;
           
           charge = charge / R;
  
-             std::cout << "Event   : " << event_id << std::endl;
-             std::cout << "Channel : " << channel_id << std::endl;
+             std::cout << "Channel : " << channel_id << " && " "Event : " << event_id << std::endl;
              std::cout << "Baseline: " << base << std::endl;
              std::cout << "Amplitude (recalc): " << amplitude << std::endl;
              std::cout << "Charge (recalc)   : " << charge * 1000. << std::endl;
  
-             TGraph *gr = new TGraph(n, &x[0], &y[0]);
+             TGraph *gr = new TGraph(n);
+             for(int j=0;j<n;++j)
+                gr->SetPoint(j, j*dt, (*waveform)[j]);
  
              TCanvas *c1 = new TCanvas("c1","Waveform",800,600);
              gr->SetTitle(";Time (ns);ADC counts");
@@ -124,13 +112,12 @@
      pave->Draw();
  
              break;
-             delete pave;
-             delete gr;
-             delete c1;
          }
  
      }
  
      if (!found)
          std::cout << "Event not found!\n";
+         f->Close();
+         delete f;
  }
