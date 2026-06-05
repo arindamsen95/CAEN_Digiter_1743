@@ -6,6 +6,7 @@
  #include "TGraph.h"
  #include "TLegend.h"
  #include <iostream>
+ #include <cmath>
  
  void fit_waveform(int event_id = 501, int channel_id = 0)
  {
@@ -18,17 +19,15 @@
      TTree *t = (TTree*)f->Get("ChannelTree");
  
      int eventID, channel;
-     float baseline, amp=0.0, amplitude, charge, minVal, maxVal;
-     std::vector<float> *waveform = nullptr;
+     float baseline,amplitude, charge;
+     double minVal, maxVal;
+     std::vector<double> *waveform = nullptr;
  
      t->SetBranchAddress("eventID", &eventID);
      t->SetBranchAddress("channel", &channel);
- //    t->SetBranchAddress("baseline", &baseline);
- //    t->SetBranchAddress("amplitude", &amplitude);
- //    t->SetBranchAddress("charge", &charge);
      t->SetBranchAddress("waveform", &waveform);
  
-     int nentries = t->GetEntries();
+     Long64_t nentries = t->GetEntriesFast();
  
      bool found = false;
  
@@ -41,7 +40,7 @@
          if (eventID == event_id && channel == channel_id)
          {
              found = true;
- 
+             double amp = (*waveform)[0];
              int n = waveform->size();
  
              x.resize(n);
@@ -58,49 +57,39 @@
  
         minVal = *result.first;
         maxVal = *result.second;
+        bool negativePulse =std::fabs(minVal) > std::fabs(maxVal);
+        amp = negativePulse ? minVal : maxVal;
  
         cout << "min val=" << minVal << " & " << "max val=" << maxVal << endl;
        }
  
-      if(abs(minVal)>maxVal) {
-             //double amp = 1e9;
+          double dt = 0.3125; // in ns (set properly!)
+          double R = 50.0; // ohms (typical oscilloscope / readout impedance)
+          double charge = 0;
+
+      if(std::fabs(minVal) > maxVal) {
              for (int j = 0; j < n; j++)
              {
                  x[j] = j * 0.3125;
                  y[j] = (*waveform)[j];
  
-                 // amplitude (for negative pulse)
-                 if (y[j] < amp)
-                     amp = y[j];
- 
+              double v = (*waveform)[j] - base;
+              charge += v * dt;
              }
  }
- 
+
       else {
-             //double amp = 1e-9;
              for (int j = 0; j < n; j++)
              {
                  x[j] = j * 0.3125;
                  y[j] = (*waveform)[j];
  
-                 // amplitude (for negative pulse)
-                 if (y[j] > amp)
-                     amp = y[j];
- 
+              double v = (*waveform)[j] - base;
+              charge += v * dt;
              }
  }
  	
  	 amplitude = amp - base;
-          double dt = 0.3125; // in ns (set properly!)
-          double R = 50.0; // ohms (typical oscilloscope / readout impedance)
-          
-          double charge = 0;
-          
-          for (int j = 0; j < n; j++)
-          {
-              double v = (*waveform)[j] - base;
-              charge += v * dt;
-          }
           
           charge = charge / R;
  
@@ -135,6 +124,9 @@
      pave->Draw();
  
              break;
+             delete pave;
+             delete gr;
+             delete c1;
          }
  
      }
