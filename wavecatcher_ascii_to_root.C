@@ -134,14 +134,14 @@ void wavecatcher_ascii_to_root(int begin_file=1, int end_file=1, TString outfile
                     &timeCount
                 );
 
-std::string s1 = leadStr;
-std::string s2 = trailStr;
-
-s1.erase(s1.find('.'), 1);
-s2.erase(s2.find('.'), 1);
-
-leadingTime  = std::stoll(s1);
-trailingTime = std::stoll(s2);
+    std::string s1 = leadStr;
+    std::string s2 = trailStr;
+    
+    s1.erase(s1.find('.'), 1);
+    s2.erase(s2.find('.'), 1);
+    
+    leadingTime  = std::stoll(s1);
+    trailingTime = std::stoll(s2);
 
                 // waveform line
                 if(getline(fin,line))
