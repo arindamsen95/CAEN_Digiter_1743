@@ -67,7 +67,7 @@
  
  base /= nBase;
  
- charge = (charge - base * n * dt) / R;  // baseline-corrected integral
+ charge = (charge - base * n * dt) / R;  // in nanoCoulombs (nC)
  
  double amp = (std::fabs(minVal) > std::fabs(maxVal)) ? minVal : maxVal;
  double amplitude = amp - base;
