@@ -1,0 +1,81 @@
+The linear interpolation itself is not the time resolution. It is a way to estimate the pulse crossing time more precisely than the sampling period.
+Let's look at it geometrically.
+Suppose your sampling period is:
+dt=312.5" ps"
+
+and your CFD threshold is:
+V_thr=-5" mV"
+
+Now imagine two consecutive samples:
+Sample	Time (ns)	Voltage (mV)
+i−1	10.0000	-4
+i	10.3125	-8
+The threshold (-5 mV) lies somewhere between these two samples.
+Without interpolation, you only know:
+threshold crossed between
+10.0000 ns and 10.3125 ns
+which gives a timing uncertainty of roughly one sample:
+312.5" ps"
+
+Linear interpolation
+Assume the waveform is approximately a straight line between the two samples.
+The line equation is:
+V(t)=V_1+(V_2-V_1)/(t_2-t_1 )(t-t_1)
+
+Set V(t)=V_thr:
+V_thr=V_1+(V_2-V_1)/(t_2-t_1 )(t-t_1)
+
+Solving for t:
+t=t_1+(V_thr-V_1)/(V_2-V_1 )(t_2-t_1)
+
+which is exactly
+t_cross = t1 + (threshold - v1)*(t2 - t1)/(v2 - v1);
+
+Example
+Using:
+t1 = 10.0000 ns
+v1 = -4 mV
+
+t2 = 10.3125 ns
+v2 = -8 mV
+
+threshold = -5 mV
+Compute:
+(-5-(-4))/(-8-(-4))=(-1)/(-4)=0.25
+
+Therefore
+t_cross=10.0000+0.25×0.3125=10.078125" ns"
+
+Instead of knowing only that the crossing occurred somewhere in a 312.5 ps interval, you now estimate it at:
+10.078125" ns"
+
+Why this improves timing
+Your digitizer samples every 312.5 ps, but the analog signal exists continuously between samples.
+Interpolation uses the waveform shape to estimate where the threshold crossing occurred between the recorded points.
+So even with a 312.5 ps sampling interval, you can often achieve timing precision much smaller than 312.5 ps.
+For example, many systems with:
+312.5" ps/sample"
+
+can achieve:
+50-100" ps"
+
+timing resolution after CFD and interpolation.
+
+Then where does the time resolution come from?
+For each event:
+	Extract t_1from detector 1 using interpolation. 
+	Extract t_2from detector 2 using interpolation. 
+	Compute 
+Δt=t_1-t_2
+
+for thousands of events.
+	Plot a histogram of Δt. 
+	Fit a Gaussian: 
+f(Δt)=Aexp⁡(-(Δt-μ)^2/(2σ^2 ))
+
+The fitted σis the measured timing resolution of the detector pair.
+So:
+	Interpolation → gives a better estimate of the time for a single event. 
+	Histogram width (σ) → gives the actual time resolution over many events
+
+
