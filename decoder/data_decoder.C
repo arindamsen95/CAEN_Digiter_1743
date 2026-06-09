@@ -8,7 +8,19 @@
  #include <vector>
  #include <algorithm>
  #include <filesystem>
- #define WARNING "\033[1;31mWARNING : \033[0m"
+ #include <iomanip>
+ 
+ // =====================================================
+ // Logging
+ // =====================================================
+
+ #define RESET   "\033[0m"
+
+ #define INFO    "\033[1;34m[INFO] \033[0m"
+ #define WARNING    "\033[1;33m[WARNING] \033[0m"
+ #define ERROR   "\033[1;31m[ERROR] \033[0m"
+ #define SUCCESS "\033[1;32m[SUCCESS] \033[0m"
+
 
   using namespace std;
 
@@ -66,7 +78,7 @@
 
   chTree->Branch("waveform",&waveform);
 
-  cout << "\n*****************" << endl;
+  cout << "\n" << endl;
 
   // =========================
   // FILE LOOP
@@ -83,6 +95,11 @@
         std::cout << WARNING << "Directory does not exist: " << dirname << std::endl;
         continue;
     }
+    
+    if(fs::is_empty(dirname)) {
+       std::cout << WARNING << " Directory is empty: " << dirname << std::endl;
+       continue;
+    }
 
     std::vector<std::string> files;
 
@@ -95,6 +112,11 @@
        if(fname.find("wavecatcher_run") == 0 && fname.find("Ascii.dat") != std::string::npos)
          files.push_back(entry.path().string());
     }
+
+    if(files.empty()) {
+       cout << WARNING << " No WaveCatcher data files found in: " << dirname << std::endl;
+       continue;
+    }
     
     fileCounts.push_back({dirname, (int)files.size()});
 
@@ -104,12 +126,12 @@
 
     for(const auto& fname : files) {
     
-        std::cout << "Processing : " << fname << std::endl;
+        std::cout << INFO << "Processing : " << fname << std::endl;
 
         std::ifstream fin(fname);
 
         if(!fin.is_open()) {
-            std::cout << WARNING << "Cannot open " << fname << std::endl;
+            std::cout << ERROR << "Cannot open " << fname << std::endl;
             continue;
         }
 
@@ -209,6 +231,8 @@
     eventOffset += (maxEventInThisDir + 1);
  }
     if(!firstEvent) eventTree->Fill();
+    Long64_t nEvents   = eventTree->GetEntries();
+    Long64_t nChannels = chTree->GetEntries();
     fout->Write();
     fout->Close();
 
@@ -216,38 +240,38 @@
     // RUN SUMMERY
     // =====================================
 
-    cout << "\n========== \033[1;31m Run Summary \033[0m ==========\n";
+    cout <<"\n========== Run Summary ==========\n\n";
 
-    std::cout << "Number of directories : " << directories.size() << std::endl;
-    int totalFiles = 0;
-
-    for(const auto& p : fileCounts){
-    cout << p.first << " : " << p.second << " files" << endl;
-    totalFiles += p.second;
-    }
-
-    std::cout << "----------------------------------" << std::endl;
-    std::cout << "Total files : " << totalFiles << endl;
-    std::cout << "Output file : " << outfile << " " ;
+    std::cout << SUCCESS << left << setw(14) << "Output file" << ": " << outfile << " " ;
 
     namespace fs2 = std::filesystem;
     
     auto filesize = fs2::file_size(outfile.Data());
     
     if(filesize < 1024)
-        std::cout << filesize << " B " << std::endl;
+         cout << " (" << filesize << " B)" << std::endl;
     
     else if(filesize < 1024*1024)
-        std::cout << Form("(%.2f KB)",
-                     filesize/1024.0) << std::endl;
+        std::cout << Form("(%.2f KB)", filesize/1024.0) << std::endl;
     
     else if(filesize < 1024ll*1024ll*1024ll)
-        std::cout << Form("(%.2f MB)",
-                     filesize/(1024.0*1024.0)) << std::endl;
+        std::cout << Form("(%.2f MB)", filesize/(1024.0*1024.0)) << std::endl;
     
     else
-        std::cout << Form("(%.2f GB)",
-                 filesize/(1024.0*1024.0*1024.0)) << std::endl;
+        std::cout << Form("(%.2f GB)", filesize/(1024.0*1024.0*1024.0)) << std::endl;
+
+    std::cout << std::endl; 
+    std::cout << left << setw(24) << "Directories processed" << ": " << directories.size() << std::endl;
+    
+    int totalFiles = 0;
+    for(const auto& p : fileCounts){
+    std::cout << "    " << p.first << " : " << p.second << " files" << std::endl;
+    totalFiles += p.second;
+    }
+    std::cout << std::endl;    
+    std::cout << left << setw(24) << "Total files processed" << ": " << totalFiles << std::endl;
+    std::cout << left << setw(24) << "Events stored" << ": " << nEvents << std::endl;
+    std::cout << left << setw(24) << "Channel entries" << ": " << nChannels << std::endl;
     std::cout << "==================================\n" << std::endl;
 
 }
