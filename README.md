@@ -52,7 +52,9 @@ root macro.C
 
 ```text
 CAEN_Digiter_1743/
-├── macros
+├── data decoder
+├── time resolution
+├── macro to get wevform
 ├── README.md
 └── .gitignore
 ```
