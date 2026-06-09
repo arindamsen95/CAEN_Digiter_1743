@@ -120,7 +120,7 @@ root
 Compile the macro:
 
 ```cpp
-.L v2_wavecatcher_ascii_to_root_all_files.C+
+.L data_decoder.C+
 ```
 
 The `+` instructs ROOT/ACLiC to compile the macro.
