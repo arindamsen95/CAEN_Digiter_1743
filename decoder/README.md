@@ -237,6 +237,67 @@ EventTree->Print();
 ChannelTree->Print();
 ```
 
+
+## Quick Data Analysis
+
+Start ROOT and open the output file:
+
+```bash
+root wavecatcher_output.root
+```
+
+Retrieve the trees:
+
+```cpp
+TTree *eventTree = (TTree*)_file0->Get("EventTree");
+TTree *chTree    = (TTree*)_file0->Get("ChannelTree");
+```
+
+Inspect available branches:
+
+```cpp
+eventTree->Print();
+chTree->Print();
+```
+
+Plot common quantities:
+
+```cpp
+chTree->Draw("amplitude");
+chTree->Draw("charge");
+chTree->Draw("baseline");
+chTree->Draw("channel");
+```
+
+Apply selections:
+
+```cpp
+chTree->Draw("charge","channel==0");
+chTree->Draw("amplitude","eventID==100");
+```
+
+Display the first few entries:
+
+```cpp
+eventTree->Scan("*","","",10);
+chTree->Scan("*","","",10);
+```
+
+Access waveform data:
+
+```cpp
+std::vector<double> *waveform = nullptr;
+
+chTree->SetBranchAddress("waveform",&waveform);
+chTree->GetEntry(0);
+
+for(auto v : *waveform)
+    std::cout << v << std::endl;
+```
+
+The `eventID` branch can be used to correlate information between `EventTree` and `ChannelTree`.
+
+
 ---
 
 ## Notes
