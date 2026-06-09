@@ -100,7 +100,7 @@
     }
     
     if(fs::is_empty(dirname)) {
-       std::cout << WARNING << " Directory is empty: " << dirname << std::endl;
+       std::cout << WARNING << "Directory is empty: " << dirname << std::endl;
        continue;
     }
 
@@ -117,7 +117,7 @@
     }
 
     if(files.empty()) {
-       cout << WARNING << " No WaveCatcher data files found in: " << dirname << std::endl;
+       cout << WARNING << "No WaveCatcher data files found in: " << dirname << std::endl;
        continue;
     }
     
@@ -156,15 +156,15 @@
 
         sscanf(line.c_str(), "=== EVENT %d ===", &localEventID);
 
-        if(seenEvents.count(localEventID)) {
-           std::cout << ERROR << " Duplicate event : " << localEventID << std::endl;
-        }
-        seenEvents.insert(localEventID);
-
         if(localEventID > maxEventInThisDir)
             maxEventInThisDir = localEventID;
 
         eventID = localEventID + eventOffset;
+
+        if(seenEvents.count(eventID)) {
+           std::cout << ERROR << "Duplicate event : " << eventID << std::endl;
+        }
+        seenEvents.insert(eventID);
 
         continue;
     }
@@ -228,7 +228,7 @@
                 waveform->push_back(val);
 
         if(waveform->size() != 1024) {
-           cout << ERROR << " Event " << ch_eventID << " Ch " << channel
+           cout << WARNING << " Event " << ch_eventID << " Ch " << channel
                 << " waveform length = " << waveform->size() << endl;
 }
         }
