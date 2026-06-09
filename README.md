@@ -17,9 +17,6 @@ Arindam Sen
 ## Requirements
 
 * Git
-* Python 3.x (if applicable)
-* CAEN drivers and libraries
-* Additional dependencies listed in the project configuration files
 
 ## Installation
 

@@ -8,6 +8,7 @@
  #include <vector>
  #include <algorithm>
  #include <filesystem>
+ #define WARNING "\033[1;31mWARNING : \033[0m"
 
   using namespace std;
 
@@ -78,6 +79,11 @@
   for(const auto& dirname : directories) {
 
     namespace fs = std::filesystem;
+    if(!fs::exists(dirname)) {
+        std::cout << WARNING << "Directory does not exist: " << dirname << std::endl;
+        continue;
+    }
+
     std::vector<std::string> files;
 
     for(const auto& entry : fs::directory_iterator(dirname)) {
@@ -86,7 +92,7 @@
 
        std::string fname = entry.path().filename().string();
 
-       if(fname.find("wavecatcher_run1_Ascii.dat") == 0)
+       if(fname.find("wavecatcher_run") == 0 && fname.find("Ascii.dat") != std::string::npos)
          files.push_back(entry.path().string());
     }
     
@@ -103,7 +109,7 @@
         std::ifstream fin(fname);
 
         if(!fin.is_open()) {
-            std::cout << "Cannot open " << fname << std::endl;
+            std::cout << WARNING << "Cannot open " << fname << std::endl;
             continue;
         }
 
@@ -206,9 +212,12 @@
     fout->Write();
     fout->Close();
 
+    // =====================================
+    // RUN SUMMERY
+    // =====================================
+
     cout << "\n========== \033[1;31m Run Summary \033[0m ==========\n";
 
-    std::cout << "Output file :  " << outfile << " created " << std::endl;
     std::cout << "Number of directories : " << directories.size() << std::endl;
     int totalFiles = 0;
 
@@ -219,6 +228,26 @@
 
     std::cout << "----------------------------------" << std::endl;
     std::cout << "Total files : " << totalFiles << endl;
+    std::cout << "Output file : " << outfile << " " ;
+
+    namespace fs2 = std::filesystem;
+    
+    auto filesize = fs2::file_size(outfile.Data());
+    
+    if(filesize < 1024)
+        std::cout << filesize << " B " << std::endl;
+    
+    else if(filesize < 1024*1024)
+        std::cout << Form("(%.2f KB)",
+                     filesize/1024.0) << std::endl;
+    
+    else if(filesize < 1024ll*1024ll*1024ll)
+        std::cout << Form("(%.2f MB)",
+                     filesize/(1024.0*1024.0)) << std::endl;
+    
+    else
+        std::cout << Form("(%.2f GB)",
+                 filesize/(1024.0*1024.0*1024.0)) << std::endl;
     std::cout << "==================================\n" << std::endl;
 
 }
