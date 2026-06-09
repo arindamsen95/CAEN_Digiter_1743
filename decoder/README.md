@@ -147,7 +147,7 @@ wavecatcher_output.root
 
 ```cpp
 data_decoder(
-    "wave.root"
+    "output.root"
 );
 ```
 
@@ -161,7 +161,7 @@ std::vector<std::string> dirs = {
 };
 
 data_decoder(
-    "wave.root",
+    "output.root",
     dirs
 );
 ```
@@ -178,7 +178,7 @@ std::vector<std::string> dirs = {
 };
 
 data_decoder(
-    "wave.root",
+    "output.root",
     dirs
 );
 ```
@@ -196,7 +196,7 @@ root -l
 Then:
 
 ```cpp
-.L v2_wavecatcher_ascii_to_root_all_files.C+
+.L data_decoder+
 
 std::vector<std::string> dirs = {
     "run1",
@@ -204,9 +204,15 @@ std::vector<std::string> dirs = {
 };
 
 data_decoder(
-    "wave.root",
+    "output.root",
     dirs
 );
+```
+
+Or:
+
+```bash
+root -l 'data_decoder("output.root",{"dir1","dir2",...})'
 ```
 
 ---
