@@ -132,7 +132,7 @@ The `+` instructs ROOT/ACLiC to compile the macro.
 ### Process Current Directory
 
 ```cpp
-v2_wavecatcher_ascii_to_root_all_files();
+data_decoder();
 ```
 
 Output:
