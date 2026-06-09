@@ -9,6 +9,8 @@
  #include <algorithm>
  #include <filesystem>
  #include <iomanip>
+ #include <chrono>
+ #include <unordered_set>
  
  // =====================================================
  // Logging
@@ -23,6 +25,7 @@
 
 
   using namespace std;
+  auto startTime = std::chrono::steady_clock::now();
 
   void data_decoder(TString outfile="wavecatcher_output.root", std::vector<std::string> directories={"."}) {
 
@@ -79,13 +82,13 @@
   chTree->Branch("waveform",&waveform);
 
   cout << "\n" << endl;
-
   // =========================
   // FILE LOOP
   // =========================
   
   Long64_t eventOffset = 0;
   bool firstEvent = true;
+  std::unordered_set<int> seenEvents;
   std::vector<std::pair<std::string,int>> fileCounts;
 
   for(const auto& dirname : directories) {
@@ -153,6 +156,11 @@
 
         sscanf(line.c_str(), "=== EVENT %d ===", &localEventID);
 
+        if(seenEvents.count(localEventID)) {
+           std::cout << ERROR << " Duplicate event : " << localEventID << std::endl;
+        }
+        seenEvents.insert(localEventID);
+
         if(localEventID > maxEventInThisDir)
             maxEventInThisDir = localEventID;
 
@@ -218,6 +226,11 @@
             double val;
             while(ss >> val)
                 waveform->push_back(val);
+
+        if(waveform->size() != 1024) {
+           cout << ERROR << " Event " << ch_eventID << " Ch " << channel
+                << " waveform length = " << waveform->size() << endl;
+}
         }
 
         chTree->Fill();
@@ -235,6 +248,9 @@
     Long64_t nChannels = chTree->GetEntries();
     fout->Write();
     fout->Close();
+    auto endTime = std::chrono::steady_clock::now();
+    double elapsedSeconds = std::chrono::duration<double>(endTime-startTime).count();
+    double rate = nEvents / elapsedSeconds;
 
     // =====================================
     // RUN SUMMERY
@@ -272,6 +288,8 @@
     std::cout << left << setw(24) << "Total files processed" << ": " << totalFiles << std::endl;
     std::cout << left << setw(24) << "Events stored" << ": " << nEvents << std::endl;
     std::cout << left << setw(24) << "Channel entries" << ": " << nChannels << std::endl;
+    std::cout << left << setw(24) << "Processing time" << ": " << Form("%0.2f s", elapsedSeconds) << std::endl;
+    std::cout << left << setw(24) << "Event rate" << ": " << Form("%0.0f events/s", rate) << std::endl;
     std::cout << "==================================\n" << std::endl;
 
 }
