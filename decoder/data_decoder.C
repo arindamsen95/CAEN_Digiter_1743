@@ -29,7 +29,7 @@
   void data_decoder(TString outfile="wavecatcher_output.root", std::vector<std::string> directories={"."}) {
   
   auto startTime = std::chrono::steady_clock::now();
-  bool checkDuplicates=false  // check for duplicate events
+  bool checkDuplicates=false;  // check for duplicate events
   TFile *fout = new TFile(outfile,"RECREATE");
   if(fout->IsZombie()) {
     std::cerr << ERROR << "Cannot create output file" << std::endl;
