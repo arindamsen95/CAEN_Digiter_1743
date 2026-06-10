@@ -7,10 +7,11 @@
  #include "TLegend.h"
  #include <iostream>
  #include <cmath>
+ #include <iomanip>
  
- void fit_waveform(int event_id = 501, int channel_id = 0)
+ void fit_waveform(TString outfile = "wavecatcher_output.root", int event_id = 501, int channel_id = 0)
  {
-     TFile *f = TFile::Open("wavecatcher_output.root");
+     TFile *f = TFile::Open(outfile);
      if (!f || f->IsZombie()) {
          std::cout << "Error opening file\n";
          return;
@@ -24,6 +25,12 @@
      t->SetBranchAddress("eventID", &eventID);
      t->SetBranchAddress("channel", &channel);
      t->SetBranchAddress("waveform", &waveform);
+     
+     double storedBaseline, storedAmplitude, storedCharge;
+
+     t->SetBranchAddress("baseline",&storedBaseline);
+     t->SetBranchAddress("amplitude",&storedAmplitude);
+     t->SetBranchAddress("charge",&storedCharge);
  
      Long64_t nentries = t->GetEntriesFast();
  
@@ -52,6 +59,7 @@
  double dt = 0.3125;  // in ns
  double R = 50.0; // ohms (typical oscilloscope / readout impedance)
  
+ 
  for (int j = 0; j < n; ++j) {
 
      double v = (*waveform)[j];
@@ -69,13 +77,45 @@
  
  charge = (charge - base * n * dt) / R;  // in nanoCoulombs (nC)
  
- double amp = (std::fabs(minVal) > std::fabs(maxVal)) ? minVal : maxVal;
- double amplitude = amp - base;
+ //std::cout<< "max= " << maxVal << "  " << "min= " << minVal << std::endl;
  
-  std::cout << "Channel : " << channel_id << " && " "Event : " << event_id << std::endl;
-  std::cout << "Baseline: " << base << std::endl;
-  std::cout << "Amplitude (recalc): " << amplitude << std::endl;
-  std::cout << "Charge (recalc)   : " << charge * 1000. << std::endl;
+ double amplitude = (std::abs(minVal - base) > std::abs(maxVal - base))
+        ? (minVal - base)
+        : (maxVal - base);
+
+ std::cout << "==================================\n" << std::endl;
+ std::cout << left << setw(20) << "Channel ID" << "= " << channel_id << std::endl;
+ std::cout << left << setw(20) << "Event ID" << "= " << event_id << std::endl;
+
+ std::cout << "\n";
+std::cout << std::left
+          << std::setw(20) << "Parameters"
+          << std::setw(15) << "Stored"
+          << std::setw(15) << "Recalc"
+          << std::setw(15) << "Difference"
+          << "\n";
+
+std::cout << std::string(65,'-') << "\n";
+
+std::cout << std::setw(20) << "Baseline (V)"
+          << std::setw(15) << storedBaseline
+          << std::setw(15) << base
+          << std::setw(15) << Form("%0.8f",(base-storedBaseline))
+          << "\n";
+
+std::cout << std::setw(20) << "Amplitude (V)"
+          << std::setw(15) << storedAmplitude
+          << std::setw(15) << amplitude
+          << std::setw(15) << (amplitude-storedAmplitude)
+          << "\n";
+
+std::cout << std::setw(20) << "Charge (pC)"
+          << std::setw(15) << storedCharge
+          << std::setw(15) << charge*1000.
+          << std::setw(15) << Form("%0.8f",(charge*1000.-storedCharge))
+          << "\n";
+          
+ std::cout << "\n==================================\n" << std::endl;
  
   TGraph *gr = new TGraph(n);
   for(int j=0;j<n;++j)
@@ -95,7 +135,7 @@
   TPaveText *pave = new TPaveText(0.65, 0.2, 0.85, 0.3, "brNDC");
   pave->SetFillColor(0);  // White background
   pave->SetTextAlign(22); // Left-aligned (1) and vertically centered (2)
-  pave->AddText("Waveform");
+  pave->AddText(Form ("Waveform (Ch:%d , Event:%d)", channel_id, event_id));
   //pave->AddLine(0.0, 0.0, 0.0, 0.0);
   pave->AddLine(0.0, 0.72, 1.0, 0.72);
   pave->AddText(Form("Baseline : %0.3f mV", base * 1000)); 

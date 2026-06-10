@@ -25,11 +25,16 @@
 
 
   using namespace std;
-  auto startTime = std::chrono::steady_clock::now();
 
   void data_decoder(TString outfile="wavecatcher_output.root", std::vector<std::string> directories={"."}) {
-
+  
+  auto startTime = std::chrono::steady_clock::now();
+  bool checkDuplicates=false  // check for duplicate events
   TFile *fout = new TFile(outfile,"RECREATE");
+  if(fout->IsZombie()) {
+    std::cerr << ERROR << "Cannot create output file" << std::endl;
+    return;
+  }
 
   // =========================
   // 1. EVENT TREE
@@ -65,8 +70,8 @@
   char leadStr[64];
   char trailStr[64];
 
-  vector<double> *waveform = new vector<double>();
-
+  std::vector<double> waveform;
+  waveform.reserve(1024);
   chTree->Branch("eventID",&ch_eventID);
   chTree->Branch("channel",&channel);
   chTree->Branch("fcr",&fcr);
@@ -161,10 +166,12 @@
 
         eventID = localEventID + eventOffset;
 
+        if(checkDuplicates) {
         if(seenEvents.count(eventID)) {
            std::cout << ERROR << "Duplicate event : " << eventID << std::endl;
-        }
+          }
         seenEvents.insert(eventID);
+        }
 
         continue;
     }
@@ -194,7 +201,7 @@
 
     if(line.find("=== CH:") != string::npos) {
     
-        waveform->clear();
+        waveform.clear();
 
         ch_eventID = eventID;
 
@@ -225,11 +232,11 @@
 
             double val;
             while(ss >> val)
-                waveform->push_back(val);
+                waveform.push_back(val);
 
-        if(waveform->size() != 1024) {
+        if(waveform.size() != 1024) {
            cout << WARNING << " Event " << ch_eventID << " Ch " << channel
-                << " waveform length = " << waveform->size() << endl;
+                << " waveform length = " << waveform.size() << endl;
 }
         }
 
