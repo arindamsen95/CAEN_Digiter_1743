@@ -40,3 +40,7 @@ target/
 # Data Files
 *.root
 *.dat*
+
+#plots/images
+*.pdf
+*.png
