@@ -50,8 +50,9 @@ root macro.C
 ```text
 CAEN_Digiter_1743/
 ├── data decoder
-├── time resolution
+├── analysis macros
 ├── macro to get wevform
+├── macro to plot charge
 ├── README.md
 └── .gitignore
 ```
