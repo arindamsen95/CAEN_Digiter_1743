@@ -29,8 +29,7 @@ WaveCatcher ASCII Files
            |
            v
       ROOT File
-      (EventTree,
-      ChannelTree)
+  (EventTree, ChannelTree)
            |
            v
  build_analysis_tree.C
@@ -162,7 +161,7 @@ Used for:
 Total collected charge.
 
 [
-Q_{sum}=Q_9+Q_{11}
+Qsum = Q9 + Q11
 ]
 
 Used for:
@@ -178,8 +177,7 @@ Used for:
 Logarithmic charge ratio.
 
 [
-Q_{ratio}=
-\ln\left(\frac{Q_9}{Q_{11}}\right)
+Qratio = ln(Q9 / Q11)
 ]
 
 Used for:
@@ -201,9 +199,7 @@ plot_charge_position_resolution.C
 Charge asymmetry.
 
 [
-A=
-\frac{Q_9-Q_{11}}
-{Q_9+Q_{11}}
+Asymmetry (A) = (Q9 - Q11)/(Q9 + Q11)
 ]
 
 Used for:
@@ -251,7 +247,7 @@ Timestamp from the right SiPM.
 Left-right timing difference.
 
 [
-dt_{LR}=T_9-T_{11}
+dtLR = T9 - T11
 ]
 
 Used for:
@@ -273,8 +269,7 @@ plot_timing_position_resolution.C
 Average detector timestamp.
 
 [
-T_{avg}=
-\frac{T_9+T_{11}}{2}
+Tavg = (T9 + T11)/2
 ]
 
 Used for:
@@ -289,7 +284,7 @@ Used for:
 Detector timing relative to the reference detector.
 
 [
-dt_{Ref}=T_{avg}-T_0
+dtRef = Tavg - T0
 ]
 
 Used for:
@@ -362,7 +357,7 @@ Q_{ratio}=a+bx
 Used to extract:
 
 [
-\lambda_{eff}=\frac{2}{|b|}
+lambda_{eff}=  2 / |slope(b)|
 ]
 
 Macro:
@@ -380,13 +375,13 @@ plot_Qratio_vs_position.C
 Fits:
 
 [
-dt_{LR}=a+bx
+dtLR=a+bx
 ]
 
 Used to determine:
 
 [
-v_{eff}=\frac{2}{b}
+v_{eff}= 2/b
 ]
 
 Macro:
@@ -422,7 +417,7 @@ plot_timing_resolution.C
 Calibration:
 
 [
-x=f(dt_{LR})
+x=f(dtLR)
 ]
 
 Uses:
