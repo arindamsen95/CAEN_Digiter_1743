@@ -1,0 +1,9 @@
+	Qsum=Q9+Q11;
+
+        Qratio=log(Q9/Q11);
+
+        dtLR=T9-T11;
+
+        dtLRef=T9-T0;
+
+        dtRRef=T11-T0;
